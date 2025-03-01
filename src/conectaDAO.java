@@ -31,4 +31,13 @@ public class conectaDAO {
             return false;
         }
     }
+
+    public void desconectar() {
+        try 
+        {
+            conn.close();
+        } catch (SQLException ex) {
+
+        }
+    }
 }
