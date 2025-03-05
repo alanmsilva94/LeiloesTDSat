@@ -17,8 +17,7 @@ public class ProdutosDAO {
 
     Connection conn;
     PreparedStatement prep;
-    ResultSet resultset;
-    ArrayList<ProdutosDTO> listagem = new ArrayList<>();
+    ResultSet rs;
 
     public ProdutosDAO(Connection conn) {
         this.conn = conn; // Atribui a conexão passada ao atributo da classe
@@ -62,5 +61,62 @@ public class ProdutosDAO {
             System.out.println("Erro ao listar produtos: " + ex.getMessage());
         }
         return listagem;
+    }
+
+    public void venderProduto(ProdutosDTO produtosDTO) {
+        String sql = "UPDATE produtos SET status = ? WHERE id = ?";
+        try {
+            prep = conn.prepareStatement(sql);
+            prep.setString(1, "Vendido");
+            prep.setInt(2, produtosDTO.getId());
+            prep.executeUpdate();
+        } catch (Exception ex) {
+            System.out.println("Erro ao alterar status: " + ex.getMessage());
+        }
+    }
+
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+        String sql = "SELECT * FROM produtos WHERE status = 'Vendido'";
+        ArrayList<ProdutosDTO> listagem = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                ProdutosDTO produto = new ProdutosDTO();
+                produto.setId(rs.getInt("id"));
+                produto.setNome(rs.getString("nome"));
+                produto.setValor(rs.getInt("valor"));
+                produto.setStatus(rs.getString("status"));
+                listagem.add(produto);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao listar produtos: " + ex.getMessage());
+        }
+        return listagem;
+    }
+
+    public ProdutosDTO getProdutosDTO(int id) {
+        String sql = "SELECT * FROM produtos WHERE id = ?";
+        try {
+
+            prep = this.conn.prepareStatement(sql);
+            prep.setInt(1, id);
+            rs = prep.executeQuery();
+
+            ProdutosDTO produtosDTO = new ProdutosDTO();
+
+            rs.next();
+            produtosDTO.setId(id);
+
+            produtosDTO.setNome(rs.getString("nome"));
+            produtosDTO.setValor(rs.getInt("valor"));
+            produtosDTO.setStatus(rs.getString("status"));
+
+            return produtosDTO;
+
+        } catch (Exception ex) {
+            System.out.println("erro: " + ex.getMessage());
+            return null;
+        }
     }
 }

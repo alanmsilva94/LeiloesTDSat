@@ -1,6 +1,5 @@
 
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -96,6 +95,11 @@ public class listagemVIEW extends javax.swing.JFrame {
         jScrollPane2.setViewportView(id_produto_venda);
 
         btnVender.setText("Vender");
+        btnVender.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVenderActionPerformed(evt);
+            }
+        });
 
         btnVendas.setText("Consultar Vendas");
         btnVendas.addActionListener(new java.awt.event.ActionListener() {
@@ -159,16 +163,46 @@ public class listagemVIEW extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnVendasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVendasActionPerformed
-        //vendasVIEW vendas = new vendasVIEW(); 
-        //vendas.setVisible(true);
-    }//GEN-LAST:event_btnVendasActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
+
+    private void btnVendasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVendasActionPerformed
+        vendasVIEW vendas = new vendasVIEW();
+        vendas.setVisible(true);
+    }//GEN-LAST:event_btnVendasActionPerformed
+
+    private void btnVenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVenderActionPerformed
+        try {
+            conectaDAO dao = new conectaDAO();
+            boolean situacao;
+            situacao = dao.connectDB();
+            int resposta;
+
+            if (!situacao) {
+                JOptionPane.showMessageDialog(null, "Erro de conexão");
+            } else {
+                int idPesquisa = Integer.parseInt(id_produto_venda.getText());
+                ProdutosDAO produtosDAO = new ProdutosDAO(dao.conn);
+                ProdutosDTO produtosDTO = produtosDAO.getProdutosDTO(idPesquisa);
+
+                if (produtosDTO == null) {
+                    JOptionPane.showMessageDialog(this, "Produto não encontrado!");
+                } else {
+                    String status = "Vendido";
+                    produtosDTO.setStatus(status);
+                    produtosDAO.venderProduto(produtosDTO);
+                    preencherTabela();
+                }
+            }
+            dao.desconectar();
+        } catch (Exception ex) {
+            System.out.println("erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnVenderActionPerformed
 
     /**
      * @param args the command line arguments

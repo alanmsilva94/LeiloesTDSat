@@ -16,7 +16,7 @@ public class conectaDAO {
     PreparedStatement stmt;
     ResultSet rs;
 
-    public String url = "jdbc:mysql://localhost:3306/uc11";
+    public String url = "jdbc:mysql://localhost:3306/uc11?useSSL=false";
     public String usuario = "root";
     public String senha = "alanmoura1994";
 
@@ -34,9 +34,17 @@ public class conectaDAO {
 
     public void desconectar() {
         try {
-            conn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
         } catch (SQLException ex) {
-
+            ex.printStackTrace();
         }
     }
 }
